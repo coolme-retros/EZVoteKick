@@ -6,10 +6,16 @@ There, you will configure everything to your needs.
 ## Configuration
 ```ini
 [MAIN]
+VoteKickLimit = true
+VoteKickTime = 0:0:10
+VoteKickPlayersPercent = 50
+
 
 [Misc]
-VoteKickLimit=true
-VoteKickLimitCount=10
+VoteKickLimit = true
+VoteKickLimitCount = 0
+VoteKickFailedTime = 0:0:0
+VoteKickSucessTime = 0:0:0
 ```
 
 ## Whats planned?

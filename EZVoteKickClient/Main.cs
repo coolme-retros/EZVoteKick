@@ -18,32 +18,32 @@ namespace EZVoteKickClient
         public Main()
         {
 
-            EventHandlers["onClientResourceStart"] += new Action<string>(AddSugestions);            
+            EventHandlers["onClientResourceStart"] += new Action<string>(AddSugestions);
             EventHandlers["playerConnecting"] += new Action<Player, string, dynamic, dynamic>(CheckVoteKick);
             EventHandlers["nui:off"] += new Action(offnui);
             EventHandlers["nui:on"] += new Action(onnui);
             EventHandlers["playerConnecting"] += new Action(offnui);
+            EventHandlers["votekick:notkicked"] += new Action<Player>(AlertNotKicked);
             RegisterClientCommands();
         }
-       
+
+        void AlertNotKicked(Player player)
+        {
+            Screen.ShowNotification($"Vote time has expired. Either not enough players said yes, or not enough players decided to vote. {player.Name} has not been kicked.");
+        }
         public async void CheckVoteKick([FromSource] Player player, string playerName, dynamic setKickReason, dynamic deferrals)
         {
-            
+
         }
         void AddSugestions(string resourceName)
         {
-            
+
             TriggerEvent("chat:addSuggestion", "/vkick", "Initiates a Vote Kick on the target player. Note the system will not allow a votekick with less than 4 players.", new[]
             {
                 new {name = "Username", help = "The person you want to try and vote kick"}
             });
             TriggerEvent("chat:addSuggestion", "/vkyes", "Votes yes to an ongoing vote kick.");
             TriggerEvent("chat:addSuggestion", "/vkno", "Votes no to an ongoing vote kick.");
-            
-
-            
-
-           
         }
         void offnui()
         {
@@ -111,5 +111,5 @@ namespace EZVoteKickClient
 
 
 }
-   
-    
+
+

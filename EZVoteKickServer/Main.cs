@@ -29,9 +29,9 @@ namespace EZVoteKickServer
 
 
         private string adv = "Thanks for using EZVoteKick created by CoolMe Retros. This is a free version of the software. By allowing this to run you have agreed to allow ads to be displayed.";
-       public Main()
+        public Main()
         {
-            
+
             EventHandlers["onResourceStart"] += new Action<string>(CheckHtml);
             InitilizeAdministrators();
             RegisterCommands();
@@ -41,25 +41,25 @@ namespace EZVoteKickServer
             Debug.WriteLine(adv);
             _lastAdvTime = DateTime.Now;
             _nextAdvTime = _lastAdvTime.AddSeconds(60);
-            
+
             Tick += new Func<Task>(OnTick);
-            
-            
+
+
         }
         private async Task OnTick()
         {
-            
+
 
 
         }
         void CheckHtml(string resourceName)
         {
-            
+
 
         }
         private static void IniStQL()
         {
-            
+            //Soon to be removed
             if (!VoteKickHandler.EZVoteKickEnabled)
                 return;
             string connectionString = @"server=localhost;userid=root;password=;database=fivem";
@@ -76,7 +76,7 @@ namespace EZVoteKickServer
                 var identifier = Convert.ToString(row["identifier"]);
                 VoteKickHandler.AdminIdentifiers.Add(identifier);
             }
-            
+
         }
         public static void InitilizeAdministrators()
         {
@@ -111,11 +111,11 @@ namespace EZVoteKickServer
             await Delay(0);
 
             var licenseIdentifier = player.Identifiers["license"];
-            foreach(var id in player.Identifiers)
+            foreach (var id in player.Identifiers)
             {
                 Debug.WriteLine(id);
             }
-            
+
             Debug.WriteLine($"A player with the name {playerName} (Identifier: [{licenseIdentifier}]) is connecting to the server.");
 
             //deferrals.update($"Hello {playerName}, your license [{licenseIdentifier}] is being checked");
@@ -127,11 +127,11 @@ namespace EZVoteKickServer
             foreach (var id in ids)
             {
                 if (VoteKickHandler.KickedIds.Contains(id))
-            {
+                {
                     deferrals.done($"You were recently vote kicked from this server. It will expire in 3 minutes or less.");
                 }
             }
-            
+
 
             deferrals.done();
         }
@@ -141,16 +141,22 @@ namespace EZVoteKickServer
                 return;
             RegisterCommand("vkick", new Action<int, List<object>, string>((source, args, raw) =>
             {
-                Player target = 
+                Player target =
                 Players[args[0].ToString()];
                 Player initer = Players[source];
+                if (DateTime.Now < VoteKickHandler.NextKickTime)
+                {
+                    SendChatMessage("[VOTEKICK]", "A recent vote kick has passed. Please wait before another one can be initiated", 149, 50, 168, initer);
+                    return;
+                }
                 //bool voteKickLimit = Convert.ToBoolean(ConfigurationManager.AppSettings["VoteKickLimitEnabled"]);
                 //int voteKickCount = int.Parse(ConfigurationManager.AppSettings["VoteKickLimitCount"]);
-               // string data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, "".Length, "config.ini");
+                // string data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, "".Length, "config.ini");
                 //To prevent the user seeing debugging errors. We will set a condition if the player does not exist
                 if (target == null)
                 {
                     SendChatMessage("[VOTEKICK]", "Player not found. Please re-check and try again.", 149, 50, 168, initer);
+
                     return;
                 }
                 //var adminids = ConfigurationManager.AppSettings["AdministratorsIdentifiers"];
@@ -165,25 +171,19 @@ namespace EZVoteKickServer
                 var kickLimitCount = iniconfig.GetIntValue("MISC".ToLower(), "VoteKickLimitCount".ToLower(), 4);
                 var playersToKickPercent = iniconfig.GetStringValue("MAIN".ToLower(), "VoteKickPlayersPercent".ToLower(), "50");
                 var withDecimal = Convert.ToDouble("." + playersToKickPercent);
-                Debug.WriteLine(kickLimitEnabled.ToString());
-                Debug.WriteLine(kickLimitCount.ToString());
-                foreach (var val in Config.Reader.iniconfig.dict)
-                {
-                    Debug.WriteLine(val.Key + " " + val.Value);
-                }
                 if (kickLimitEnabled)
                 {
                     if (Players.Count() < kickLimitCount)
                     {
-                        SendChatMessage("[VOTEKICK]", $"To prevent abuse, a votekick cannot be initiated with less than {kickLimitCount} online players.", 149, 50, 168, initer);
+                        SendChatMessage("[VOTEKICK]", $"To prevent abuse, a Vote Kick cannot be initiated with less than {kickLimitCount} online players.", 149, 50, 168, initer);
                         return;
                     }
                 }
                 //We will also do a db check to prevent vote kicks on administrators
                 var msg = new Dictionary<string, object>
                 {
-                    ["color"] = new[] { 149, 50, 168},
-                    ["args"] = new[] { "[VOTEKICK]", $"{initer.Name} has initiated a Vote Kick on {target.Name}.  Type /vkyes to vote yes or /vkno to vote no. VoteKick will in in 1 minute. Depending on player count, atleast half of the players are required to vote yes." }
+                    ["color"] = new[] { 149, 50, 168 },
+                    ["args"] = new[] { "[VOTEKICK]", $"{initer.Name} has initiated a Vote Kick on {target.Name}.  Type /vkyes to vote yes or /vkno to vote no. VoteKick will end in in 1 minute." }
                 };
                 TriggerClientEvent("chat:addMessage", msg);
                 VoteKickHandler.TargetPlayer = target;
@@ -200,7 +200,7 @@ namespace EZVoteKickServer
                 {
                     VoteKickHandler.YesVotes++;
                     VoteKickHandler.VotesToKick--;
-                    
+
                     var msg = new Dictionary<string, object>
                     {
                         ["color"] = new[] { 149, 50, 168 },
@@ -217,7 +217,7 @@ namespace EZVoteKickServer
                 }
                 else
                 {
-                    SendChatMessage("[VOTEKICK]", "There is no current votekick in progress", 149, 50, 168, client);
+                    SendChatMessage("[VOTEKICK]", "There is no current Vote Kick in progress", 149, 50, 168, client);
                 }
                 if (VoteKickHandler.VoteKickActive)
                 {
@@ -237,7 +237,7 @@ namespace EZVoteKickServer
                         VoteKickHandler.InitiatedPlayer = null;
                         VoteKickHandler.TargetPlayer = null;
                         VoteKickHandler.VoteKickTime = 0;
-                        
+
                     }
                 }
             }), false);
@@ -247,7 +247,7 @@ namespace EZVoteKickServer
                 if (VoteKickHandler.VoteKickActive)
                 {
                     VoteKickHandler.NoVotes++;
-                    
+
                     var msg = new Dictionary<string, object>
                     {
                         ["color"] = new[] { 149, 50, 168 },
@@ -282,7 +282,7 @@ namespace EZVoteKickServer
                 }
                 else
                 {
-                    SendChatMessage("[VOTEKICK]", "There is no current votekick in progress", 149, 50, 168, client);
+                    SendChatMessage("[VOTEKICK]", "There is no current Vote Kick in progress", 149, 50, 168, client);
                 }
             }), false);
             RegisterCommand("vkend", new Action<int, List<object>, string>((source, args, raw) =>
@@ -291,11 +291,11 @@ namespace EZVoteKickServer
                 var adminid = "fivem:" + client.Identifiers["fivem"];
                 if (!VoteKickHandler.AdminIdentifiers.Contains(adminid))
                     return;*/
-                
+
 
             }), false);
-            
-             
+
+
         }
         public static void SendChatMessage(string title, string message, int r, int g, int b, Player player)
         {
@@ -308,6 +308,6 @@ namespace EZVoteKickServer
             };
             TriggerClientEvent(player, "chat:addMessage", msg);
         }
-        
+
     }
 }

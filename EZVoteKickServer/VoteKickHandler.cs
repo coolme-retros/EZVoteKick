@@ -33,7 +33,7 @@ namespace EZVoteKickServer
         public static async void StartTimer()
         {
             //Timer
-            var time1 = iniconfig.GetStringValue("[MAIN]".ToLower(), "VoteKickTime".ToLower(), "0:1:30");
+            var time1 = iniconfig.GetStringValue("MAIN".ToLower(), "VoteKickTime".ToLower(), "0:1:30");
             var theTImes = time1.Split(':');
             var hour = Convert.ToInt32(theTImes[0]);
             var minutes = Convert.ToInt32(theTImes[1]);
@@ -51,13 +51,21 @@ namespace EZVoteKickServer
                         ["args"] = new[] { "[VOTEKICK]", $"Vote time has expired. Either not enough players said yes, or not enough players decided to vote. {TargetPlayer.Name} has not been kicked!" }
                     };
                     TriggerClientEvent("chat:addMessage", msg);
+
+                    
                     VoteKickHandler.VoteKickActive = false;
                     VoteKickHandler.YesVotes = 0;
                     VoteKickHandler.NoVotes = 0;
                     VoteKickHandler.InitiatedPlayer = null;
                     VoteKickHandler.TargetPlayer = null;
                     VoteKickHandler.VoteKickTime = 0;
-                    NextKickTime.Add(new TimeSpan(0, 5, 0));
+                    var getTimeFailFromIni = iniconfig.GetStringValue("MISC".ToLower(), "VoteKickFailedTime".ToLower(), "0:5:0");
+                    var split = getTimeFailFromIni.Split(':');
+                    var hour1 = Convert.ToInt32(split[0]);
+                    var minute2 = Convert.ToInt32(split[1]);
+                    var second2 = Convert.ToInt32(split[2]);
+                    var nextKick = DateTime.Now.Add(new TimeSpan(hour1, minute2, second2));
+                    NextKickTime = nextKick;
                 }
                 await Delay(3000);
             }

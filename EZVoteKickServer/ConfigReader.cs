@@ -28,8 +28,8 @@ using System.IO;
     KEY=VALUE
     ;COMMENT  
 
-    HOW TO USE ---------------------------------------------------------------------------------
     1. ADD THIS CS FILE TO YOUR CLIENT SCRIPT
+    HOW TO USE ---------------------------------------------------------------------------------
     2. ADD A REFERENCE TO THIS SCRIPT LIKE SO: using Config.Reader;
     3. CREATE INSTANCE LIKE SO: iniconfig config = new iniconfig("resourceName","file");
     4. ACCESS INI VALUES USING GET VALUE FUNCTIONS E.G. config.GetStringValue;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using System.Collections.Concurrent;
 using Config.Reader;
+using CitizenFX.Core.Native;
 
 namespace EZVoteKickServer
 {
@@ -33,7 +34,7 @@ namespace EZVoteKickServer
         public static async void StartTimer()
         {
             //Timer
-            var time1 = iniconfig.GetStringValue("[MAIN]".ToLower(), "VoteKickTime".ToLower(), "0:1:30");
+            var time1 = iniconfig.GetStringValue("MAIN".ToLower(), "VoteKickTime".ToLower(), "0:1:30");
             var theTImes = time1.Split(':');
             var hour = Convert.ToInt32(theTImes[0]);
             var minutes = Convert.ToInt32(theTImes[1]);
@@ -51,15 +52,61 @@ namespace EZVoteKickServer
                         ["args"] = new[] { "[VOTEKICK]", $"Vote time has expired. Either not enough players said yes, or not enough players decided to vote. {TargetPlayer.Name} has not been kicked!" }
                     };
                     TriggerClientEvent("chat:addMessage", msg);
+
+                    
                     VoteKickHandler.VoteKickActive = false;
                     VoteKickHandler.YesVotes = 0;
                     VoteKickHandler.NoVotes = 0;
                     VoteKickHandler.InitiatedPlayer = null;
                     VoteKickHandler.TargetPlayer = null;
                     VoteKickHandler.VoteKickTime = 0;
-                    NextKickTime.Add(new TimeSpan(0, 5, 0));
+                    var getTimeFailFromIni = iniconfig.GetStringValue("MISC".ToLower(), "VoteKickFailedTime".ToLower(), "0:5:0");
+                    var split = getTimeFailFromIni.Split(':');
+                    var hour1 = Convert.ToInt32(split[0]);
+                    var minute2 = Convert.ToInt32(split[1]);
+                    var second2 = Convert.ToInt32(split[2]);
+                    var nextKick = DateTime.Now.Add(new TimeSpan(hour1, minute2, second2));
+                    NextKickTime = nextKick;
                 }
                 await Delay(3000);
+            }
+        }
+        public static void AddKickedUser()
+        {
+            try
+            {
+                var random = new Random();
+                var chars = "0123456789";
+                var result = new string(
+                    Enumerable.Repeat(chars, 9)
+                              .Select(s => s[random.Next(s.Length)])
+                              .ToArray());
+
+                var data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, "ezvotekick", "bans.json");
+                
+                var kicked = Newtonsoft.Json.JsonConvert.DeserializeObject<List<KickedUsers>>(data);
+                var kickedusrs = new KickedUsers()
+                {
+                    KickedId = Convert.ToInt32(result),
+                    Kicked = true,
+                    FiveMId = TargetPlayer.Identifiers["fivem"],
+                    SteamId = TargetPlayer.Identifiers["steam"],
+                    xbl = TargetPlayer.Identifiers["xbl"],
+                    LiveId = TargetPlayer.Identifiers["live"],
+                    Discord = TargetPlayer.Identifiers["discord"],
+                    License = TargetPlayer.Identifiers["license"],
+                    Ip = TargetPlayer.Identifiers["ip"]
+                };
+                Debug.WriteLine(TargetPlayer.Name);
+                kicked.Add(kickedusrs);
+                var converted = Newtonsoft.Json.JsonConvert.SerializeObject(kicked, Newtonsoft.Json.Formatting.Indented);
+                var addKick = Function.Call<bool>(Hash.SAVE_RESOURCE_FILE, "ezvotekick", "bans.json", converted, -1);
+                Debug.WriteLine(!addKick ? "Error occured when saving kick." : "");
+                Debug.WriteLine(converted);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.ToString());
             }
         }
     }

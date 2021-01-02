@@ -18,7 +18,7 @@ namespace EZVoteKickClient
         public Main()
         {
 
-            EventHandlers["onClientResourceStart"] += new Action<string>(AddSugestions);            
+            EventHandlers["onClientResourceStart"] += new Action<string>(AddSugestions);
             EventHandlers["playerConnecting"] += new Action<Player, string, dynamic, dynamic>(CheckVoteKick);
             EventHandlers["nui:off"] += new Action(offnui);
             EventHandlers["nui:on"] += new Action(onnui);
@@ -33,11 +33,11 @@ namespace EZVoteKickClient
         }
         public async void CheckVoteKick([FromSource] Player player, string playerName, dynamic setKickReason, dynamic deferrals)
         {
-            
+
         }
         void AddSugestions(string resourceName)
         {
-            
+
             TriggerEvent("chat:addSuggestion", "/vkick", "Initiates a Vote Kick on the target player. Note the system will not allow a votekick with less than 4 players.", new[]
             {
                 new {name = "Username", help = "The person you want to try and vote kick"}
@@ -111,5 +111,5 @@ namespace EZVoteKickClient
 
 
 }
-   
-    
+
+

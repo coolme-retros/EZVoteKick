@@ -30,9 +30,9 @@ namespace EZVoteKickServer
 
 
         private string adv = "Thanks for using EZVoteKick created by CoolMe Retros. This is a free version of the software. By allowing this to run you have agreed to allow ads to be displayed.";
-       public Main()
+        public Main()
         {
-            
+
             EventHandlers["onResourceStart"] += new Action<string>(CheckHtml);
             InitilizeAdministrators();
             RegisterCommands();
@@ -42,20 +42,20 @@ namespace EZVoteKickServer
             Debug.WriteLine(adv);
             _lastAdvTime = DateTime.Now;
             _nextAdvTime = _lastAdvTime.AddSeconds(60);
-            
+
             Tick += new Func<Task>(OnTick);
-            
-            
+
+
         }
         private async Task OnTick()
         {
-            
+
 
 
         }
         void CheckHtml(string resourceName)
         {
-            
+
 
         }
         private static void IniStQL()
@@ -77,7 +77,7 @@ namespace EZVoteKickServer
                 var identifier = Convert.ToString(row["identifier"]);
                 VoteKickHandler.AdminIdentifiers.Add(identifier);
             }
-            
+
         }
         public static void InitilizeAdministrators()
         {
@@ -142,7 +142,7 @@ namespace EZVoteKickServer
                 return;
             RegisterCommand("vkick", new Action<int, List<object>, string>((source, args, raw) =>
             {
-                Player target = 
+                Player target =
                 Players[args[0].ToString()];
                 Player initer = Players[source];
                 if (DateTime.Now < VoteKickHandler.NextKickTime)
@@ -152,7 +152,7 @@ namespace EZVoteKickServer
                 }
                 //bool voteKickLimit = Convert.ToBoolean(ConfigurationManager.AppSettings["VoteKickLimitEnabled"]);
                 //int voteKickCount = int.Parse(ConfigurationManager.AppSettings["VoteKickLimitCount"]);
-               // string data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, "".Length, "config.ini");
+                // string data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, "".Length, "config.ini");
                 //To prevent the user seeing debugging errors. We will set a condition if the player does not exist
                 if (target == null)
                 {
@@ -201,7 +201,7 @@ namespace EZVoteKickServer
                 {
                     VoteKickHandler.YesVotes++;
                     VoteKickHandler.VotesToKick--;
-                    
+
                     var msg = new Dictionary<string, object>
                     {
                         ["color"] = new[] { 149, 50, 168 },
@@ -240,7 +240,7 @@ namespace EZVoteKickServer
                         VoteKickHandler.InitiatedPlayer = null;
                         VoteKickHandler.TargetPlayer = null;
                         VoteKickHandler.VoteKickTime = 0;
-                        
+
                     }
                 }
             }), false);
@@ -250,7 +250,7 @@ namespace EZVoteKickServer
                 if (VoteKickHandler.VoteKickActive)
                 {
                     VoteKickHandler.NoVotes++;
-                    
+
                     var msg = new Dictionary<string, object>
                     {
                         ["color"] = new[] { 149, 50, 168 },
@@ -295,11 +295,11 @@ namespace EZVoteKickServer
                 var adminid = "fivem:" + client.Identifiers["fivem"];
                 if (!VoteKickHandler.AdminIdentifiers.Contains(adminid))
                     return;*/
-                
+
 
             }), false);
-            
-             
+
+
         }
         public static void SendChatMessage(string title, string message, int r, int g, int b, Player player)
         {
@@ -312,6 +312,6 @@ namespace EZVoteKickServer
             };
             TriggerClientEvent(player, "chat:addMessage", msg);
         }
-        
+
     }
 }

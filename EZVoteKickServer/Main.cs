@@ -32,8 +32,9 @@ namespace EZVoteKickServer
         private string adv = "Thanks for using EZVoteKick created by CoolMe Retros. This is a free version of the software. By allowing this to run you have agreed to allow ads to be displayed.";
         public Main()
         {
-
+            LoadBans();
             EventHandlers["onResourceStart"] += new Action<string>(CheckHtml);
+
             InitilizeAdministrators();
             RegisterCommands();
             VoteKickHandler.VoteKickTimer();
@@ -51,6 +52,22 @@ namespace EZVoteKickServer
         {
 
 
+
+        }
+        void LoadBans()
+        {
+            dynamic jsonObj = JsonConvert.DeserializeObject(data);
+            foreach (var kick in jsonObj)
+            {
+                if (!Convert.ToBoolean(kick["Kicked"] == true)) continue;
+                if (!string.IsNullOrEmpty(kick["FiveMId"].ToString())) VoteKickHandler.KickedIds.Add(kick["FiveMId"].ToString());
+                if (!string.IsNullOrEmpty(kick["SteamId"].ToString())) VoteKickHandler.KickedIds.Add(kick["SteamId"].ToString());
+                if (!string.IsNullOrEmpty(kick["xbl"].ToString())) VoteKickHandler.KickedIds.Add(kick["xbl"].ToString());
+                if (!string.IsNullOrEmpty(kick["LiveId"].ToString())) VoteKickHandler.KickedIds.Add(kick["LiveId"].ToString());
+                if (!string.IsNullOrEmpty(kick["Discord"].ToString())) VoteKickHandler.KickedIds.Add(kick["Discord"].ToString());
+                if (!string.IsNullOrEmpty(kick["Ip"].ToString())) VoteKickHandler.KickedIds.Add(kick["Ip"].ToString());
+                if (!string.IsNullOrEmpty(kick["License"].ToString())) VoteKickHandler.KickedIds.Add(kick["License"].ToString());
+            }
 
         }
         void CheckHtml(string resourceName)
@@ -124,6 +141,27 @@ namespace EZVoteKickServer
             // Checking ban list
             // - assuming you have a function called IsBanned of type Task<bool>
             // - normally you'd do a database query here, which might take some time
+            List<string> ids = player.Identifiers.ToList();
+            dynamic jsonObj = JsonConvert.DeserializeObject(data);
+            
+            foreach (var id in ids)
+            {
+                if (VoteKickHandler.KickedIds.Contains(id))
+                {
+                    deferrals.done($"You were recently vote kicked from this server. It will expire in 3 minutes or less.");
+                }
+            }
+            /*foreach(var kick in jsonObj)
+            {
+                if(kick["Kicked"] == true)
+                {
+                    if (ids.Contains("fivem:" + kick["FiveMId"]))
+                    {
+                        deferrals.done($"You were recently vote kicked from this server. It will expire in 3 minutes or less.");
+                    }
+                }
+
+            }*/
             /*List<string> ids = player.Identifiers.ToList();
             foreach (var id in ids)
             {
@@ -132,7 +170,7 @@ namespace EZVoteKickServer
                     deferrals.done($"You were recently vote kicked from this server. It will expire in 3 minutes or less.");
                 }
             }*/
-            
+
 
             deferrals.done();
         }

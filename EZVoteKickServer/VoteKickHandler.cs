@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using System.Collections.Concurrent;
+using System.Globalization;
 using Config.Reader;
 using CitizenFX.Core.Native;
 
@@ -89,13 +90,14 @@ namespace EZVoteKickServer
                 {
                     KickedId = Convert.ToInt32(result),
                     Kicked = true,
-                    FiveMId = TargetPlayer.Identifiers["fivem"],
-                    SteamId = TargetPlayer.Identifiers["steam"],
-                    xbl = TargetPlayer.Identifiers["xbl"],
-                    LiveId = TargetPlayer.Identifiers["live"],
-                    Discord = TargetPlayer.Identifiers["discord"],
-                    License = TargetPlayer.Identifiers["license"],
-                    Ip = TargetPlayer.Identifiers["ip"]
+                    FiveMId = "fivem:" +TargetPlayer.Identifiers["fivem"],
+                    SteamId = "steam:" +TargetPlayer.Identifiers["steam"],
+                    xbl = "xbl:" + TargetPlayer.Identifiers["xbl"],
+                    LiveId = "live:" + TargetPlayer.Identifiers["live"],
+                    Discord = "discord:" + TargetPlayer.Identifiers["discord"],
+                    License = "license:" + TargetPlayer.Identifiers["license"],
+                    Ip = "ip" + TargetPlayer.Identifiers["ip"]
+                    , TimeKicked = DateTime.Now.ToString(CultureInfo.CurrentCulture),
                 };
                 Debug.WriteLine(TargetPlayer.Name);
                 kicked.Add(kickedusrs);

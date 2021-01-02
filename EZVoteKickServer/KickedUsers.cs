@@ -17,5 +17,6 @@ namespace EZVoteKickServer
         public string Discord { get; set; }
         public string Ip { get; set; }
         public string License { get; set; }
+        public string TimeKicked { get; set; }
     }
 }
